@@ -56,7 +56,7 @@ class Builder {
 		}
 
 		protected function getFieldType($className, $property) {
-				$tags = $this->reflectionService->getPropertyTagsValues($className, $property);
+				$tags = $this->reflectionService->getPropertyTagsValues((string)$className, (string)$property);
 				$type = $tags['var'][0];
 				$subType = $tags['sloth\type'][0];
 				if ($subType) {
@@ -75,7 +75,7 @@ class Builder {
 		}
 
 		protected function getRelationType($className, $property) {
-				$tags = $this->reflectionService->getPropertyTagsValues($className, $property);
+				$tags = $this->reflectionService->getPropertyTagsValues((string)$className, (string)$property);
 				$type = $tags['var'][0];
 				$subType = isset($tags['sloth\type'])?$tags['sloth\type'][0]:FALSE;
 				if ($subType) {
@@ -91,7 +91,7 @@ class Builder {
 
 		protected function getRelationSource($className, $property) {
 
-				$vars = $this->reflectionService->getPropertyTagValues($className, $property, 'var');
+				$vars = $this->reflectionService->getPropertyTagValues((string)$className, (string)$property, 'var');
 				$varValue = array_shift($vars);
 				$matches = array();
 				if(preg_match('/ObjectStorage<(\w+)>/', $varValue, $matches) === 1) {

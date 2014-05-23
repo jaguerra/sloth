@@ -28,11 +28,23 @@ class SlothCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandCo
 						$models[] = $builder->get($modelClass);
 				}
 
+				$this->generateSQLSchema($models);
+				$this->generateTCA($models);
+
+		}
+
+		protected function generateSQLSchema($models) {
 				$view = $this->objectManager->get('Icti\\Sloth\\View\\Php');
 				$fileData = $view->render($this->getTemplatePath('ext_tables.sql.php'), $models);
-				//$this->outputLine($fileData);
 				file_put_contents( $this->getGeneratedFilePath('ext_tables.sql'), $fileData);
 				$this->outputLine('Generated ext_tables.sql');
+		}
+
+		protected function generateTCA($models) {
+				foreach ($models as $model) {
+						$builder = new \Icti\Sloth\Tca\Builder($model);
+						var_dump( $builder->get() );
+				}
 		}
 
 		protected function getTemplatePath($fileName) {
@@ -53,9 +65,6 @@ class SlothCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandCo
 				return 'itemas';
 		}
 
-		protected function getTablePrefix() {
-				return 'tx_itemas_';
-		}
 }
 
 ?>

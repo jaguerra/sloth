@@ -1,13 +1,19 @@
 <?php
 
 namespace Icti\Sloth\MetaModel;
+use Icti\Sloth\Primitives;
 
 class Field {
 
 		const Types = 'String|Text|RTE|Integer|Check|Files|Images';
 
 		protected $model;
+
+		/**
+ 		 * @var Primitives\CamelCaseString
+ 		 */
 		protected $name;
+
 		protected $type;
 		protected $attributes;
 
@@ -18,7 +24,7 @@ class Field {
 				$attributes
 		) {
 				$this->model = $model;
-				$this->name = $name;
+				$this->name = new Primitives\CamelCaseString($name);
 				$this->setType($type);
 				$this->attributes = $attributes;
 		}
@@ -46,6 +52,10 @@ class Field {
 
 		public function getAttributes() {
 				return $this->attributes;
+		}
+
+		public function getTitle() {
+				return (string)$this->name;
 		}
 
 }

@@ -1,15 +1,24 @@
 <?php
 
 namespace Icti\Sloth\MetaModel;
+use Icti\Sloth\Primitives;
 
 class Relation {
 
 		const Types = 'HasOne|HasMany';
 
 		protected $model;
+
+		/**
+ 		 * @var Primitives\CamelCaseString
+ 		 */
 		protected $name;
 		protected $type;
 		protected $attributes;
+
+		/**
+ 		 * @var Primitives\CamelCaseString
+ 		 */
 		protected $source;
 
 		public function __construct(
@@ -20,10 +29,10 @@ class Relation {
 				$attributes
 		) {
 				$this->model = $model;
-				$this->name = $name;
+				$this->name = new Primitives\CamelCaseString($name);
 				$this->setType($type);
 				$this->attributes = $attributes;
-				$this->source = $source;
+				$this->source = new Primitives\CamelCaseString($source);
 		}
 
 		protected function setType($type) {
@@ -53,6 +62,10 @@ class Relation {
 
 		public function getSource() {
 				return $this->source;
+		}
+
+		public function getTitle() {
+				return (string)$this->name;
 		}
 
 
