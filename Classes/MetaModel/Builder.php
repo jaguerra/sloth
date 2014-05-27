@@ -52,15 +52,15 @@ class Builder {
 		}
 
 		protected function getPropertyAttributes($className, $property) {
-				return array();
+				return $this->reflectionService->getPropertyTagsValues((string)$className, (string)$property);
+
 		}
 
 		protected function getFieldType($className, $property) {
 				$tags = $this->reflectionService->getPropertyTagsValues((string)$className, (string)$property);
 				$type = $tags['var'][0];
-				$subType = $tags['sloth\type'][0];
-				if ($subType) {
-						return $subType;
+				if (isset($tags['sloth\type'][0])) {
+						return $tags['sloth\type'][0];
 				} else {
 						switch($type) {
 						case 'string':
@@ -81,8 +81,8 @@ class Builder {
 				if ($subType) {
 						return $subType;
 				} else {
-						if(preg_match('/ObjectStorage<\w+>/', $type) === 1) {
-								return 'HasMany';	
+						if(preg_match('/ObjectStorage<[\w\\\\]+>/', $type) === 1) {
+								return 'HasAndBelongsToMany';	
 						} else {
 								return 'HasOne';
 						}
@@ -94,7 +94,7 @@ class Builder {
 				$vars = $this->reflectionService->getPropertyTagValues((string)$className, (string)$property, 'var');
 				$varValue = array_shift($vars);
 				$matches = array();
-				if(preg_match('/ObjectStorage<(\w+)>/', $varValue, $matches) === 1) {
+				if(preg_match('/ObjectStorage<([\w\\\\]+)>/', $varValue, $matches) === 1) {
 						return $matches[1];	
 				} else {
 						return $varValue;

@@ -7,6 +7,12 @@ namespace Icti\Sloth\View;
 
 class Php {
 
+		/**
+ 		 * @var Icti\Sloth\Cms\Facade
+ 		 * @inject
+ 		 */
+		protected $cmsFacade;
+
 		protected $templateFile;
 
 		public function render($templateFile, $vars) {
@@ -25,14 +31,7 @@ class Php {
  		 * Output: tx_plugin_namespace_class_name
  		 */
 		protected function getTableNameFromClassName($className) {
-				$tokens = preg_split('/\\\\+/', $className);
-				$tokens = array_filter($tokens, 'trim');
-				array_shift($tokens);
-
-				$tokens = array_map( function ($x) {
-						return $this->camelCaseToUnderscore($x);
-				}, $tokens);
-				return 'tx_' . implode('_', $tokens);
+				return $this->cmsFacade->getTableNameFromClassName($className);
 		}
 
 		protected function camelCaseToUnderscore($origin) {
@@ -42,11 +41,7 @@ class Php {
 		}
 
 		protected function getMMTableName($relation) {
-				$leftClassName = $relation->getModel()->getModelClassName();
-				return 'tx_' . $this->getPluginSegmentFromClassName($leftClassName) . '_' .
-						$this->getTableNameSegmentFromClassName($leftClassName) . '_' .
-						$this->camelCaseToUnderscore($relation->getName()) . '_' .
-						$this->getTableNameSegmentFromClassName($relation->getSource());
+				return $this->cmsFacade->getMMTableName($relation);
 		}
 
 		/**
@@ -54,11 +49,7 @@ class Php {
  		 * Output: plugin
  		 */
 		protected function getPluginSegmentFromClassName($className) {
-				$tokens = preg_split('/\\\\+/', $className);
-				$tokens = array_filter($tokens, 'trim');
-				array_shift($tokens);
-				$segment = array_shift($tokens);
-				return $this->camelCaseToUnderscore($segment);
+				return $this->cmsFacade->getPluginSegmentFromClassName($className);
 		}
 
 		/**
@@ -66,10 +57,7 @@ class Php {
  		 * Output: class_name
  		 */
 		protected function getTableNameSegmentFromClassName($className) {
-				$tokens = preg_split('/[\\\\_]+/', $className);
-				$tokens = array_filter($tokens, 'trim');
-				$segment = array_pop($tokens);
-				return $this->camelCaseToUnderscore($segment);
+				return $this->cmsFacade->getTableNameSegmentFromClassName($className);
 		}
 }
 

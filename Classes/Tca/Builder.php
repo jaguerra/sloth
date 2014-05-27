@@ -9,6 +9,12 @@ class Builder {
 		protected $model;
 		protected $tca;
 
+		/**
+ 		 * @var Icti\Sloth\Cms\Facade
+ 		 * @inject
+ 		 */
+		protected $cmsFacade;
+
 		public function __construct(MetaModel\Model $model) {
 				$this->model = $model;
 				$this->tca = array();
@@ -43,33 +49,175 @@ class Builder {
 				);
 		}
 
-		protected function buildColumnRelationHAsMany($field) {
+		protected function buildRelationForeignTableWhere($field) {
+				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
+				$orderBy = $this->cmsFacade->getTcaTableOrderField($foreignTable);
+				return  'AND (' . $foreignTable . '.pid = ###CURRENT_PID###
+            or ' . $foreignTable . '.pid = ###STORAGE_PID###
+            or ' . $foreignTable . '.pid IN (###PAGE_TSCONFIG_IDLIST###))
+                ORDER BY ' . $foreignTable . '.' . $orderBy;
+		}
+
+		protected function buildColumnRelationHasOne($field) {
 				$column = $this->buildBaseColumn($field);
+				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
+				$column['config'] = array(
+						'type' => 'select',
+						'foreign_table' => $foreignTable,
+						'foreign_table_where' => $this->buildRelationForeignTableWhere($field),
+						'size' => 1,
+						'maxitems' => 1,
+						'multiple' => 0,
+				);
 				return $column;
 		}
 
-		protected function buildColumnFieldRTE($field) {
+		protected function buildColumnRelationHasMany($field) {
+				$column = $this->buildBaseColumn($field);
+				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
+				$foreignField = $this->cmsFacade->getInlineRelationForeignFieldName($field);
+				$column['config'] = array(
+						'type' => 'inline',
+						'foreign_table' => $foreignTable,
+						'foreign_field' => $foreignField,
+						'maxitems'      => 9999,
+						'appearance' => array(
+								'collapse' => 0,
+								'levelLinksPosition' => 'top',
+								'showSynchronizationLink' => 1,
+								'showPossibleLocalizationRecords' => 1,
+								'showAllLocalizationLink' => 1
+						),
+				);
+				return $column;
+		}
+
+		protected function buildColumnRelationHasAndBelongsToMany($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['config'] = array(
+						'type' => 'select',
+						'foreign_table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
+						'foreign_table_where' => $this->buildRelationForeignTableWhere($field),
+						'MM' => $this->cmsFacade->getMMTableName($field, $field->getSource()),
+						'size' => 10,
+						'autoSizeMax' => 30,
+						'maxitems' => 9999,
+						'multiple' => 0,
+						'wizards' => array(
+								'_PADDING' => 1,
+								'_VERTICAL' => 1,
+								'edit' => array(
+										'type' => 'popup',
+										'title' => 'Edit',
+										'script' => 'wizard_edit.php',
+										'icon' => 'edit2.gif',
+										'popup_onlyOpenIfSelected' => 1,
+										'JSopenParams' => 'height=350,width=580,status=0,menubar=0,scrollbars=1',
+								),
+								'add' => Array(
+										'type' => 'script',
+										'title' => 'Create new',
+										'icon' => 'add.gif',
+										'params' => array(
+												'table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
+												'pid' => '###CURRENT_PID###',
+												'setValue' => 'prepend'
+										),
+										'script' => 'wizard_add.php',
+								),
+						),
+
+				);
+				return $column;
+		}
+
+		protected function buildColumnFieldString($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['config'] = array(
+						'type' => 'input',
+						'size' => 30,
+				);
+				return $column;
+		}
+
+		protected function buildColumnFieldText($field) {
 				$column = $this->buildBaseColumn($field);
 				$column['config'] = array(
 						'type' => 'text',
 						'cols' => 40,
 						'rows' => 15,
 						'eval' => 'trim',
-						'wizards' => array(
-								'RTE' => array(
-										'icon' => 'wizard_rte2.gif',
-										'notNewRecords'=> 1,
-										'RTEonly' => 1,
-										'script' => 'wizard_rte.php',
-										'title' => 'LLL:EXT:cms/locallang_ttc.xml:bodytext.W.RTE',
-										'type' => 'script'
-								)
-						)
-
 				);
 				return $column;
 		}
 
+		protected function buildColumnFieldRTE($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['defaultExtras'] = 'richtext[]';
+				$column['config'] = array(
+						'type' => 'text',
+						'cols' => 40,
+						'rows' => 15,
+						'eval' => 'trim',
+				);
+				return $column;
+		}
+
+		protected function buildColumnFieldInteger($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['config'] = array(
+						'type' => 'input',
+						'size' => 4,
+						'eval' => 'int'
+				);
+				return $column;
+		}
+
+		protected function buildColumnFieldCheck($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['config'] = array(
+						'type' => 'check',
+						'default' => 0
+				);
+				return $column;
+		}
+
+		protected function buildColumnFieldFiles($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['config'] = array(
+						'type' => 'group',
+						'internal_type' => 'file',
+						'uploadfolder' => $this->getUploadFolder(),
+						'show_thumbs' => 0,
+						'size' => 5,
+						'allowed' => '',
+						'disallowed' => 'php',
+				);
+				return $column;
+		}
+
+		protected function buildColumnFieldImages($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['config'] = array(
+						'type' => 'group',
+						'internal_type' => 'file',
+						'uploadfolder' => $this->getUploadFolder(),
+						'show_thumbs' => 1,
+						'size' => 5,
+						'allowed' => $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'],
+						'disallowed' => '',
+				);
+				return $column;
+		}
+
+		/**
+		 * Gets the value of upload folder 
+		 *
+		 * @return
+		 */
+		public function getUploadFolder() {
+			return 'uploads/tx_icticontent';
+		}
 
 
 		protected function getSearchFields() {
@@ -84,7 +232,7 @@ class Builder {
 				return implode(',', $fields);
 		}
 
-		protected function getTableName() {
+		public function getTableName() {
 				return (string)$this->model->getModelClassName()->getTableName();
 		}
 
