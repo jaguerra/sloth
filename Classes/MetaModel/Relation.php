@@ -17,6 +17,11 @@ class Relation extends BaseProperty {
  		 */
 		protected $source;
 
+		/**
+ 		 * @var Primitives\CamelCaseString
+ 		 */
+		protected $inverseOf;
+
 		public function __construct(
 				Model &$model,
 				$name,
@@ -25,6 +30,7 @@ class Relation extends BaseProperty {
 				$attributes
 		) {
 				parent::__construct($model, $name, $attributes);
+				$this->inverseOf = new Primitives\CamelCaseString($this->getAttribute('sloth\inverseOf'));
 				$this->setType($type);
 				$this->source = new Primitives\CamelCaseString($source);
 		}
@@ -35,6 +41,11 @@ class Relation extends BaseProperty {
 				if (preg_match($pattern, $type) !== 1) {
 						throw new InvalidRelationTypeException($this->model, $this->name, $type);
 				}
+
+				if ($this->isInverseOf() && $type != 'HasAndBelongsToMany') {
+						throw new InvalidRelationTypeException($this->model, $this->name, 'inverseOf '.$type);
+				}
+
 				$this->type = $type;
 		}
 
@@ -49,6 +60,20 @@ class Relation extends BaseProperty {
 		 */
 		public function getSource() {
 				return $this->source;
+		}
+
+		/**
+ 		 * @return boolean
+ 		 */
+		public function isInverseOf() {
+				return $this->isAttributeSet('sloth\inverseOf');
+		}
+
+		/**
+		 * @return
+		 */
+		public function getInverseOf() {
+				return $this->inverseOf;
 		}
 
 }

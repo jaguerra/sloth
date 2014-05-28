@@ -57,6 +57,26 @@ abstract class BaseProperty {
 		/**
  		 *
  		 */
+		public function getAttribute($name) {
+				if ($this->isAttributeSet($name)) {
+						return $this->attributes[$name][0];
+				} else {
+						return FALSE;
+				}
+		}
+
+
+		/**
+ 		 * @return boolean
+ 		 */
+		public function isAttributeSet($attributeName) {
+				return isset($this->attributes[$attributeName]);
+		}
+
+
+		/**
+ 		 *
+ 		 */
 		public function getTitle() {
 				if (isset($this->attributes['sloth\title'][0])) {
 						return $this->attributes['sloth\title'][0];

@@ -16,7 +16,11 @@ class Builder {
  	 	 * @return Model
  	 	 */
 		public function get($className) {
-				$model = new Model($className);
+
+				$classReflection = new \TYPO3\CMS\Extbase\Reflection\ClassReflection($className);
+				$tags = $classReflection->getTagsValues();
+
+				$model = new Model($className, $tags);
 
 				$properties = $this->reflectionService->getClassPropertyNames($className);
 				foreach ($properties as $property) {

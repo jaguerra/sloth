@@ -52,10 +52,16 @@ class Builder {
 		protected function buildRelationForeignTableWhere($field) {
 				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
 				$orderBy = $this->cmsFacade->getTcaTableOrderField($foreignTable);
-				return  'AND (' . $foreignTable . '.pid = ###CURRENT_PID###
-            or ' . $foreignTable . '.pid = ###STORAGE_PID###
-            or ' . $foreignTable . '.pid IN (###PAGE_TSCONFIG_IDLIST###))
-                ORDER BY ' . $foreignTable . '.' . $orderBy;
+				$attributes = $field->getAttributes();
+
+				if (isset($attributes['sloth\localAuxValues'])) {
+						return  'AND (' . $foreignTable . '.pid = ###CURRENT_PID###
+            		or ' . $foreignTable . '.pid = ###STORAGE_PID###
+            		or ' . $foreignTable . '.pid IN (###PAGE_TSCONFIG_IDLIST###))
+                		ORDER BY ' . $foreignTable . '.' . $orderBy;
+				} else {
+						return 'ORDER BY ' . $foreignTable . '.' . $orderBy;
+				}
 		}
 
 		protected function buildColumnRelationHasOne($field) {
@@ -68,6 +74,9 @@ class Builder {
 						'size' => 1,
 						'maxitems' => 1,
 						'multiple' => 0,
+						'items' => array(
+								array('', 0),
+						),
 				);
 				return $column;
 		}
@@ -93,6 +102,11 @@ class Builder {
 		}
 
 		protected function buildColumnRelationHasAndBelongsToMany($field) {
+
+				if ($field->getInverseOf()) {
+						return $this->buildColumnRelationInverseHasAndBelongsToMany($field);
+				}
+
 				$column = $this->buildBaseColumn($field);
 				$column['config'] = array(
 						'type' => 'select',
@@ -103,33 +117,26 @@ class Builder {
 						'autoSizeMax' => 30,
 						'maxitems' => 9999,
 						'multiple' => 0,
-						'wizards' => array(
-								'_PADDING' => 1,
-								'_VERTICAL' => 1,
-								'edit' => array(
-										'type' => 'popup',
-										'title' => 'Edit',
-										'script' => 'wizard_edit.php',
-										'icon' => 'edit2.gif',
-										'popup_onlyOpenIfSelected' => 1,
-										'JSopenParams' => 'height=350,width=580,status=0,menubar=0,scrollbars=1',
-								),
-								'add' => Array(
-										'type' => 'script',
-										'title' => 'Create new',
-										'icon' => 'add.gif',
-										'params' => array(
-												'table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
-												'pid' => '###CURRENT_PID###',
-												'setValue' => 'prepend'
-										),
-										'script' => 'wizard_add.php',
-								),
-						),
-
 				);
 				return $column;
 		}
+
+		protected function buildColumnRelationInverseHasAndBelongsToMany($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['config'] = array(
+						'type' => 'select',
+						'foreign_table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
+						'foreign_table_where' => $this->buildRelationForeignTableWhere($field),
+						'MM' => $this->cmsFacade->getInverseMMTableName($field),
+						'MM_opposite_field' => $this->cmsFacade->getFieldNameFromPropertyName( $field->getInverseOf() ),
+						'size' => 10,
+						'autoSizeMax' => 30,
+						'maxitems' => 9999,
+						'multiple' => 0,
+				);
+				return $column;
+		}
+
 
 		protected function buildColumnFieldString($field) {
 				$column = $this->buildBaseColumn($field);
@@ -233,7 +240,7 @@ class Builder {
 		}
 
 		public function getTableName() {
-				return (string)$this->model->getModelClassName()->getTableName();
+				return (string)$this->cmsFacade->getTableNameFromClassName($this->model->getModelClassName());
 		}
 
 		protected function init() {
@@ -258,6 +265,7 @@ class Builder {
 										'starttime' => 'starttime',
 										'endtime' => 'endtime',
 								),
+								'hideTable' => ($this->model->isAttributeSet('sloth\hideTable')) ? TRUE : FALSE,
 								'iconfile' => \t3lib_extMgm::extRelPath('sloth') . 'Resources/Public/Icons/domain_model.gif'
 						),
 						'types' => array(

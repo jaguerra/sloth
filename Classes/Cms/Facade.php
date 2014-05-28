@@ -38,13 +38,31 @@ class Facade {
 		/**
  		 *
  		 */
+		public function getFieldNameFromPropertyName($propertyName) {
+				$property = new \Icti\Sloth\Primitives\CamelCaseString($propertyName);
+				return (string)$property->toUnderscore();
+		}
+
+		/**
+ 		 *
+ 		 */
 		public function getMMTableName(\Icti\Sloth\MetaModel\Relation $relation) {
 				$leftClassName = $relation->getModel()->getModelClassName();
 				return 'tx_' . $this->getPluginSegmentFromClassName($leftClassName) . '_' .
 						$this->getTableNameSegmentFromClassName($leftClassName) . '_' .
-						$relation->getName()->toUnderscore() . '_' .
-						$this->getTableNameSegmentFromClassName($relation->getSource());
+						$relation->getName()->toUnderscore();
 		}
+
+		/**
+ 		 *
+ 		 */
+		public function getInverseMMTableName(\Icti\Sloth\MetaModel\Relation $relation) {
+				$leftClassName = $relation->getSource();
+				return 'tx_' . $this->getPluginSegmentFromClassName($leftClassName) . '_' .
+						$this->getTableNameSegmentFromClassName($leftClassName) . '_' .
+						$relation->getInverseOf()->toUnderscore();
+		}
+		
 
 		/**
  		 * Input: Some\\Plugin\\Namespace\\ClassName

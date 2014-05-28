@@ -16,6 +16,9 @@ class SlothCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandCo
  		 **/
 		protected $reflectionService;
 
+		/**
+ 		 *
+ 		 */
 		public function testCommand() {
 				error_reporting(E_ALL & ~E_NOTICE);
 				error_reporting(E_ALL);
@@ -33,6 +36,34 @@ class SlothCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandCo
 				$this->generateTCA($models);
 
 		}
+
+		public function lipsumCommand() {
+				error_reporting(E_ALL & ~E_NOTICE);
+				ini_set('display_errors', 'STDERR');
+
+
+				$models = array();
+				foreach($this->getClassesList() as $modelClass) {
+						$builder = $this->objectManager->get('Icti\\Sloth\\MetaModel\\Builder');
+						$models[] = $builder->get($modelClass);
+				}
+
+				$persistenceManager = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\PersistenceManagerInterface');
+				foreach ($models as $metaModel) {
+						$className = (string)$metaModel->getModelClassName();
+						for ($i=1;$i<=5;$i++) {
+								$model = new $className();
+								$model->setName((string)$metaModel->getTitle() . ' ' . $i);
+								$persistenceManager->add($model);
+						}
+						$this->outputLine('Generated 5 test records for '.$className);
+				}
+
+				$persistenceManager->persistAll();
+
+
+		}
+
 
 		protected function generateSQLSchema($models) {
 				$view = $this->objectManager->get('Icti\\Sloth\\View\\Php');
@@ -83,7 +114,25 @@ EOT;
 
 		protected function getClassesList() {
 				return array(
-						'\\Icti\\Itemas\\Domain\\Model\\Estado'
+						'\\Icti\\Itemas\\Domain\\Model\\Estado',
+						'\\Icti\\Itemas\\Domain\\Model\\ComunidadAutonoma',
+						'\\Icti\\Itemas\\Domain\\Model\\AreaTerapeutica',
+						'\\Icti\\Itemas\\Domain\\Model\\EstadoProyecto',
+						'\\Icti\\Itemas\\Domain\\Model\\NivelMaduracion',
+						'\\Icti\\Itemas\\Domain\\Model\\Programa',
+						'\\Icti\\Itemas\\Domain\\Model\\TecnologiaSanitaria',
+						'\\Icti\\Itemas\\Domain\\Model\\TipoColaborador',
+						'\\Icti\\Itemas\\Domain\\Model\\CategoriaColaborador',
+						'\\Icti\\Itemas\\Domain\\Model\\Capacidad',
+						'\\Icti\\Itemas\\Domain\\Model\\ServicioConsultoria',
+						'\\Icti\\Itemas\\Domain\\Model\\ColaboradorSanitario',
+						'\\Icti\\Itemas\\Domain\\Model\\ColaboradorNoSanitario',
+						'\\Icti\\Itemas\\Domain\\Model\\TecnologiaTransferible',
+						'\\Icti\\Itemas\\Domain\\Model\\Usuario',
+						'\\Icti\\Itemas\\Domain\\Model\\GrupoTrabajo',
+						'\\Icti\\Itemas\\Domain\\Model\\Metrica',
+						'\\Icti\\Itemas\\Domain\\Model\\Indicador',
+						'\\Icti\\Itemas\\Domain\\Model\\Resultados'
 				);
 		}
 
