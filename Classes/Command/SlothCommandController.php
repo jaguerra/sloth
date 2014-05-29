@@ -99,6 +99,12 @@ EOT;
 ?>
 EOT;
 
+				$appendFilename = $this->getGeneratedFilePath('ext_tables.append.php');
+				if (file_exists($appendFilename)) {
+						$appendFileData = file_get_contents( $appendFilename );
+						$fileData .= "\n" . $appendFileData;
+				}
+
 				file_put_contents( $this->getGeneratedFilePath('ext_tables.php'), $fileData);
 				$this->outputLine('Generated ext_tables.php');
 
