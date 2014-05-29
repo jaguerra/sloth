@@ -67,6 +67,9 @@ class Builder {
 		protected function buildColumnRelationHasOne($field) {
 				$column = $this->buildBaseColumn($field);
 				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
+
+				$column['l10n_mode'] = 'exclude';
+				$column['l10n_display'] = 'defaultAsReadonly';
 				$column['config'] = array(
 						'type' => 'select',
 						'foreign_table' => $foreignTable,
@@ -82,6 +85,19 @@ class Builder {
 		}
 
 		protected function buildColumnRelationHasMany($field) {
+				/**
+ 				 * Translations are allowed in-place for the editors
+ 				 * to manage them within the parent record.
+ 				 *
+ 				 * Caveat: This allows "Create new" child elements within
+ 				 * a parent's translation which is not supported by Extbase.
+ 				 *
+ 				 * A safer solution is to disallow translations inline but then
+ 				 * editors must translate records outside the parent's.
+ 				 *
+ 				 * Remember: WE DO NOT SUPPORT TRANSLATED RELATIONS, related 
+ 				 * records must provide its own translations.
+ 				 */
 				$column = $this->buildBaseColumn($field);
 				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
 				$foreignField = $this->cmsFacade->getInlineRelationForeignFieldName($field);
@@ -91,12 +107,18 @@ class Builder {
 						'foreign_field' => $foreignField,
 						'maxitems'      => 9999,
 						'appearance' => array(
-								'collapse' => 0,
+								'collapseAll' => 1,
+								'enabledControls' => array(
+										'localize' => TRUE,
+								),
 								'levelLinksPosition' => 'top',
 								'showSynchronizationLink' => 1,
-								'showPossibleLocalizationRecords' => 1,
+								'showPossibleLocalizationRecords' => 0,
 								'showAllLocalizationLink' => 1
 						),
+						'behaviour' => array(
+								'localizationMode' => 'select'
+						)
 				);
 				return $column;
 		}
@@ -108,6 +130,8 @@ class Builder {
 				}
 
 				$column = $this->buildBaseColumn($field);
+				$column['l10n_mode'] = 'exclude';
+				$column['l10n_display'] = 'defaultAsReadonly';
 				$column['config'] = array(
 						'type' => 'select',
 						'foreign_table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
@@ -123,6 +147,8 @@ class Builder {
 
 		protected function buildColumnRelationInverseHasAndBelongsToMany($field) {
 				$column = $this->buildBaseColumn($field);
+				$column['l10n_mode'] = 'exclude';
+				$column['l10n_display'] = 'defaultAsReadonly';
 				$column['config'] = array(
 						'type' => 'select',
 						'foreign_table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
@@ -223,7 +249,7 @@ class Builder {
 		 * @return
 		 */
 		public function getUploadFolder() {
-			return 'uploads/tx_icticontent';
+			return 'uploads/tx_itemas';
 		}
 
 
@@ -231,12 +257,68 @@ class Builder {
 				return (string)$this->model->getLabelField()->getName()->toUnderscore();
 		}
 
+		/**
+ 		 * Ordering tries to be as much implicit as possible
+ 		 *
+ 		 * We insert fields into tabs as follows:
+ 		 * - Use a tab name as the table as default
+ 		 * - "General" tab always come first
+ 		 *
+ 		 * We order fields within tabs based on priority (integer)
+ 		 * - Default priority is 1000
+ 		 * - On tie, original order is kept
+ 		 */
 		protected function getShowItems() {
 				$fields = array();
+				$tabs = array();
+				$defaultTab = $this->model->getTitle();
+				$defaultPriority = 1000;
+				$mainTab = 'General';
+
 				foreach($this->model->getOrderedFields() as $orderedField) {
-						$fields[] = $orderedField->getName()->toUnderscore();
+						if ($orderedField->isAttributeSet('sloth\tab')) {
+								$tab = $orderedField->getAttribute('sloth\tab');
+						} else {
+								$tab = $defaultTab;
+						}
+
+						if ($orderedField->isAttributeSet('sloth\priority')) {
+								$priority = (int)$orderedField->getAttribute('sloth\priority');
+						} else {
+								$priority = $defaultPriority;
+						}
+
+						$tabs[$tab][$priority][] = $orderedField->getName()->toUnderscore();
 				}
-				return implode(',', $fields);
+
+				/*
+ 				 * Put "General" tab on first place
+ 				 */
+				uksort($tabs, function($a, $b) use ($mainTab) {
+						if ($a == $mainTab) {
+								return -1;
+						} else {
+								return 0;
+						}
+				});
+
+				$showItems = '';
+				foreach ($tabs as $tabLabel => $tab) {
+						$tabFields = array();
+						foreach ($tab as $priority) {
+								ksort($priority);
+								foreach ($priority as $field) {
+										$tabFields[] = $field;
+								}
+						}
+
+						if ($tabLabel == $mainTab) {
+								$showItems .= implode(',', $tabFields) . ',';
+						} else {
+								$showItems .= '--div--;' . $tabLabel . ',' . implode(',', $tabFields) . ',';
+						}
+				}
+				return $showItems;
 		}
 
 		public function getTableName() {
@@ -269,7 +351,7 @@ class Builder {
 								'iconfile' => \t3lib_extMgm::extRelPath('sloth') . 'Resources/Public/Icons/domain_model.gif'
 						),
 						'types' => array(
-								'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, ' . $this->getShowItems() . ',--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime')
+								'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, ' . $this->getShowItems() . '--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime')
 						),
 						'palettes' => array(
 								'1' => array('showitem' => ''),

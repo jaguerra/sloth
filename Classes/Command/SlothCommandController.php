@@ -114,7 +114,6 @@ EOT;
 
 		protected function getClassesList() {
 				return array(
-						'\\Icti\\Itemas\\Domain\\Model\\Estado',
 						'\\Icti\\Itemas\\Domain\\Model\\ComunidadAutonoma',
 						'\\Icti\\Itemas\\Domain\\Model\\AreaTerapeutica',
 						'\\Icti\\Itemas\\Domain\\Model\\EstadoProyecto',
