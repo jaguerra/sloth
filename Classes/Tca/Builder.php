@@ -125,7 +125,7 @@ class Builder {
 
 		protected function buildColumnRelationHasAndBelongsToMany($field) {
 
-				if ($field->getInverseOf()) {
+				if ($field->isInverseOf()) {
 						return $this->buildColumnRelationInverseHasAndBelongsToMany($field);
 				}
 

@@ -76,13 +76,25 @@ class Model {
 		public function getLabelField() {
 				if (isset($this->attributes['sloth\label'][0])) {
 						$labelField = $this->attributes['sloth\label'][0];
-						foreach ($this->orderedFields as $field) {
-								if ($field->getName() == $labelField) {
-										return $field;
-								}
+						try {
+								return $this->getFieldByName($labelField);
+						} catch (Exception $e) {
+								//
 						}
 				}
 				return $this->orderedFields[0];
+		}
+
+		/**
+ 		 * @return Field
+ 		 */
+		public function getFieldByName($name) {
+				foreach ($this->orderedFields as $field) {
+						if ($field->getName() == $name) {
+								return $field;
+						}
+				}
+				throw new \Exception('Field "' . $name . '" not found in model "' . $this->modelClassName . '"');
 		}
 
 		/**

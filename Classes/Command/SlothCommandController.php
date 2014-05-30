@@ -21,14 +21,14 @@ class SlothCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandCo
  		 */
 		public function testCommand() {
 				error_reporting(E_ALL & ~E_NOTICE);
-				error_reporting(E_ALL);
+				//error_reporting(E_ALL);
 				ini_set('display_errors', 'STDERR');
 
 				$this->outputLine('TEST OK');
 
 				$models = array();
 				foreach($this->getClassesList() as $modelClass) {
-						$builder = $this->objectManager->get('Icti\\Sloth\\MetaModel\\Builder');
+						$builder = $this->objectManager->get('Icti\\Sloth\\MetaModel\\Factory');
 						$models[] = $builder->get($modelClass);
 				}
 
