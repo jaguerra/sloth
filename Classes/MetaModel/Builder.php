@@ -73,6 +73,8 @@ class Builder {
 								return 'Integer';
 						case 'boolean':
 								return 'Check';
+						case 'DateTime':
+								return 'DateTime';
 						}
 						return 'DUMMY';
 				}

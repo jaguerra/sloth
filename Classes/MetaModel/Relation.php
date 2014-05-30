@@ -5,7 +5,7 @@ use Icti\Sloth\Primitives;
 
 class Relation extends BaseProperty {
 
-		const Types = 'HasOne|HasMany|HasAndBelongsToMany';
+		const Types = 'HasOne|HasMany|HasAndBelongsToMany|BelongsTo';
 
 		/**
  		 * @var string
@@ -42,7 +42,7 @@ class Relation extends BaseProperty {
 						throw new InvalidRelationTypeException($this->model, $this->name, $type);
 				}
 
-				if ($this->isInverseOf() && $type != 'HasAndBelongsToMany') {
+				if ($this->isInverseOf() && $type == 'HasOne') {
 						throw new InvalidRelationTypeException($this->model, $this->name, 'inverseOf '.$type);
 				}
 

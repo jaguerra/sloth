@@ -23,6 +23,7 @@ CREATE TABLE <?php echo $this->getTableNameFromClassName($model->getModelClassNa
 							echo $fieldStart . $fieldName . ' text NOT NULL,' . "\n";
 							break;
 					case 'Integer':
+					case 'DateTime':
 							echo $fieldStart . $fieldName . ' int(11) DEFAULT \'0\' NOT NULL,' . "\n";
 							break;
 					case 'Check':
@@ -93,7 +94,7 @@ CREATE TABLE <?php echo $relationTableName; ?> (
 
 <?php
 			foreach($model->getRelations() as $relation) {
-					if ($relation->getType() === 'HasMany') {
+					if ($relation->getType() === 'HasMany' && !$relation->isInverseOf()) {
 							$relationTableName = $this->getTableNameFromClassName($relation->getSource());
 							$relationTableField = $this->cmsFacade->getInlineRelationForeignFieldName($relation);
 ?>

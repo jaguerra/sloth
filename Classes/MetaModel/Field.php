@@ -5,7 +5,7 @@ use Icti\Sloth\Primitives;
 
 class Field extends BaseProperty {
 
-		const Types = 'String|Text|RTE|Integer|Check|Files|Images';
+		const Types = 'String|Text|RTE|Integer|Check|Files|Images|DateTime';
 
 		/**
  		 * @var string

@@ -137,6 +137,10 @@ EOT;
 						'\\Icti\\Itemas\\Domain\\Model\\GrupoTrabajo',
 						'\\Icti\\Itemas\\Domain\\Model\\Metrica',
 						'\\Icti\\Itemas\\Domain\\Model\\Indicador',
+						'\\Icti\\Itemas\\Domain\\Model\\Noticia',
+						'\\Icti\\Itemas\\Domain\\Model\\Actividad',
+						'\\Icti\\Itemas\\Domain\\Model\\Publicacion',
+						'\\Icti\\Itemas\\Domain\\Model\\Documento',
 						'\\Icti\\Itemas\\Domain\\Model\\Resultados'
 				);
 		}

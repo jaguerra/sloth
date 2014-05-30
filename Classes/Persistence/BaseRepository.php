@@ -56,7 +56,7 @@ class BaseRepository extends \TYPO3\CMS\Extbase\Persistence\Repository {
 								return $query->equals($name, $value);
 						}
 				} else {
-						if ($metaField->getType() == 'HasOne') {
+						if ($metaField->getType() == 'HasOne' || $metaField->getType() == 'BelongsTo') {
 								return $query->equals($name, $value);
 						} else {
 								return $query->contains($name, $value);

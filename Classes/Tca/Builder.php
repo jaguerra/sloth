@@ -64,6 +64,38 @@ class Builder {
 				}
 		}
 
+		protected function buildColumnRelationBelongsTo($field) {
+				$column = $this->buildBaseColumn($field);
+				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
+
+				$column['config']['type'] = 'passthrough';
+
+				/*
+ 				 * BelongsTo relations are meant to complement HasMany
+ 				 * To be used whithin ExtBase. No manual editing on TCA
+ 				 * shall be needed.
+ 				 *
+ 				 * If in any case you might allow TCA editing use the following
+ 				 * code.
+ 				 */
+				/*
+				$column['l10n_mode'] = 'exclude';
+				$column['l10n_display'] = 'defaultAsReadonly';
+				$column['config'] = array(
+						'type' => 'select',
+						'foreign_table' => $foreignTable,
+						'foreign_table_where' => ' AND ' . $foreignTable . '.pid = ###CURRENT_PID###',
+						'size' => 1,
+						'maxitems' => 1,
+						'multiple' => 0,
+						'items' => array(
+								array('', 0),
+						),
+				);
+				 */
+				return $column;
+		}
+
 		protected function buildColumnRelationHasOne($field) {
 				$column = $this->buildBaseColumn($field);
 				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
@@ -84,6 +116,7 @@ class Builder {
 				return $column;
 		}
 
+
 		protected function buildColumnRelationHasMany($field) {
 				/**
  				 * Translations are allowed in-place for the editors
@@ -100,7 +133,13 @@ class Builder {
  				 */
 				$column = $this->buildBaseColumn($field);
 				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
-				$foreignField = $this->cmsFacade->getInlineRelationForeignFieldName($field);
+
+				if ($field->isInverseOf()) {
+						$foreignField = (string)$field->getInverseOf()->toUnderscore();
+				} else {
+						$foreignField = $this->cmsFacade->getInlineRelationForeignFieldName($field);
+				}
+
 				$column['config'] = array(
 						'type' => 'inline',
 						'foreign_table' => $foreignTable,
@@ -243,6 +282,23 @@ class Builder {
 				return $column;
 		}
 
+		protected function buildColumnFieldDateTime($field) {
+				$column = $this->buildBaseColumn($field);
+				$column['config'] = array(
+						'type' => 'input',
+						'size' => 13,
+						'max' => 20,
+						'eval' => 'datetime',
+						'checkbox' => 0,
+						'default' => 0,
+						'range' => array(
+								'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y'))
+						),
+				);
+				return $column;
+		}
+
+
 		/**
 		 * Gets the value of upload folder 
 		 *
@@ -297,6 +353,8 @@ class Builder {
 				uksort($tabs, function($a, $b) use ($mainTab) {
 						if ($a == $mainTab) {
 								return -1;
+						} else if ($b == $mainTab) {
+								return 1;
 						} else {
 								return 0;
 						}
@@ -305,8 +363,8 @@ class Builder {
 				$showItems = '';
 				foreach ($tabs as $tabLabel => $tab) {
 						$tabFields = array();
+						ksort($tab);
 						foreach ($tab as $priority) {
-								ksort($priority);
 								foreach ($priority as $field) {
 										$tabFields[] = $field;
 								}
