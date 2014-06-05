@@ -276,6 +276,7 @@ class Builder {
 						'uploadfolder' => $this->getUploadFolder(),
 						'show_thumbs' => 1,
 						'size' => 5,
+						'maxitems' => 100,
 						'allowed' => $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'],
 						'disallowed' => '',
 				);

@@ -38,7 +38,11 @@ class Base extends \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject {
 				if ($metaField instanceof \Icti\Sloth\MetaModel\Field) {
 						if ($metaField->getType() == 'Images') {
 								$value = parent::_getProperty($propertyName);
-								return new \Tx_Ictiextbase_Domain_Model_CsvMediaItem($value, 'uploads/tx_itemas/');
+								if ($value) {
+										return new \Tx_Ictiextbase_Domain_Model_CsvMediaItem($value, 'uploads/tx_itemas/');
+								} else {
+										return FALSE;
+								}
 						}
 				}
 				return parent::_getProperty($propertyName);
