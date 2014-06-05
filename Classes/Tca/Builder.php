@@ -292,9 +292,6 @@ class Builder {
 						'eval' => 'datetime',
 						'checkbox' => 0,
 						'default' => 0,
-						'range' => array(
-								'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y'))
-						),
 				);
 				return $column;
 		}
