@@ -68,17 +68,15 @@ class Builder {
 				$column = $this->buildBaseColumn($field);
 				$foreignTable = $this->cmsFacade->getTableNameFromClassName($field->getSource());
 
-				$column['config']['type'] = 'passthrough';
-
 				/*
  				 * BelongsTo relations are meant to complement HasMany
  				 * To be used whithin ExtBase. No manual editing on TCA
  				 * shall be needed.
  				 *
- 				 * If in any case you might allow TCA editing use the following
- 				 * code.
+ 				 * But if you want to use the relation within Extbase queries
+ 				 * this field must be a proper TCA relation...
+ 				 *
  				 */
-				/*
 				$column['l10n_mode'] = 'exclude';
 				$column['l10n_display'] = 'defaultAsReadonly';
 				$column['config'] = array(
@@ -92,7 +90,6 @@ class Builder {
 								array('', 0),
 						),
 				);
-				 */
 				return $column;
 		}
 
