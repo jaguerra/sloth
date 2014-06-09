@@ -399,12 +399,13 @@ class Builder {
 										'disabled' => 'hidden',
 										'starttime' => 'starttime',
 										'endtime' => 'endtime',
+										'fe_group' => 'fe_group'
 								),
 								'hideTable' => ($this->model->isAttributeSet('sloth\hideTable')) ? TRUE : FALSE,
 								'iconfile' => \t3lib_extMgm::extRelPath('sloth') . 'Resources/Public/Icons/domain_model.gif'
 						),
 						'types' => array(
-								'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, ' . $this->getShowItems() . '--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime')
+								'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, ' . $this->getShowItems() . '--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime, --linebreak--, fe_group')
 						),
 						'palettes' => array(
 								'1' => array('showitem' => ''),
@@ -487,6 +488,32 @@ class Builder {
 														'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y'))
 												),
 										),
+								),
+								'fe_group' => array(
+										'exclude' => 1,
+										'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.fe_group',
+										'config' => array(
+												'type' => 'select',
+												'size' => 5,
+												'maxitems' => 20,
+												'items' => array(
+														array(
+																'LLL:EXT:lang/locallang_general.xlf:LGL.hide_at_login',
+																-1
+														),
+														array(
+																'LLL:EXT:lang/locallang_general.xlf:LGL.any_login',
+																-2
+														),
+														array(
+																'LLL:EXT:lang/locallang_general.xlf:LGL.usergroups',
+																'--div--'
+														)
+												),
+												'exclusiveKeys' => '-1,-2',
+												'foreign_table' => 'fe_groups',
+												'foreign_table_where' => 'ORDER BY fe_groups.title'
+										)
 								),
 						)
 
