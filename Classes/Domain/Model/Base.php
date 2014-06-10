@@ -34,6 +34,11 @@ class Base extends \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject {
  		 *
  		 */
 		public function _getProperty($propertyName) {
+
+				if (preg_match('/^_/', $propertyName)) {
+						return parent::_getProperty($propertyName);
+				}
+
 				$metaField = $this->metaModelFactory->get(get_class($this))->getFieldByName($propertyName);
 				if ($metaField instanceof \Icti\Sloth\MetaModel\Field) {
 						if ($metaField->getType() == 'Images') {
