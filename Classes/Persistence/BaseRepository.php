@@ -44,7 +44,7 @@ class BaseRepository extends \TYPO3\CMS\Extbase\Persistence\Repository {
 				$metaField = $this->metaModelFactory->get($this->objectType)->getFieldByName($name);
 
 				if ($metaField instanceof \Icti\Sloth\MetaModel\Field) {
-						if ($metaField->getType() == 'Text' || $metaField->getType() == 'RTE') {
+						if ($metaField->getType() == 'String' || $metaField->getType() == 'Text' || $metaField->getType() == 'RTE') {
 								return $query->like($name, '%' . $value . '%');
 						} else if ($metaField->getType() == 'Check') {
 								$boolValue = TRUE;
