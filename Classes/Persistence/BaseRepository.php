@@ -19,7 +19,7 @@ class BaseRepository extends \TYPO3\CMS\Extbase\Persistence\Repository {
 
 				foreach ($filters as $filterName => $filterValue) {
 						$constraint = $this->getConstraint($query, $filterName, $filterValue);
-						if ($contraint !== FALSE) {
+						if ($constraint !== FALSE) {
 								$constraintArray[] = $constraint;
 						}
 				}
