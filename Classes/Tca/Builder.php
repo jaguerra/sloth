@@ -168,16 +168,33 @@ class Builder {
 				$column = $this->buildBaseColumn($field);
 				$column['l10n_mode'] = 'exclude';
 				$column['l10n_display'] = 'defaultAsReadonly';
-				$column['config'] = array(
-						'type' => 'select',
-						'foreign_table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
-						'foreign_table_where' => $this->buildRelationForeignTableWhere($field),
-						'MM' => $this->cmsFacade->getMMTableName($field, $field->getSource()),
-						'size' => 10,
-						'autoSizeMax' => 30,
-						'maxitems' => 9999,
-						'multiple' => 0,
-				);
+
+				if ($field->isAttributeSet('sloth\group')) {
+						$column['config'] = array(
+								'type' => 'group',
+								'internal_type' => 'db',
+								'allowed' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
+								'foreign_table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
+								'MM' => $this->cmsFacade->getMMTableName($field, $field->getSource()),
+								'size' => 10,
+								'autoSizeMax' => 30,
+								'maxitems' => 9999,
+								'multiple' => 0,
+						);
+
+				} else {
+
+						$column['config'] = array(
+								'type' => 'select',
+								'foreign_table' => $this->cmsFacade->getTableNameFromClassName($field->getSource()),
+								'foreign_table_where' => $this->buildRelationForeignTableWhere($field),
+								'MM' => $this->cmsFacade->getMMTableName($field, $field->getSource()),
+								'size' => 10,
+								'autoSizeMax' => 30,
+								'maxitems' => 9999,
+								'multiple' => 0,
+						);
+				}
 				return $column;
 		}
 
