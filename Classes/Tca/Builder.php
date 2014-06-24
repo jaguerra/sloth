@@ -28,14 +28,35 @@ class Builder {
 
 				$this->init();
 				$this->buildColumns();
-
+				$this->postProcess();
 				return $this->tca;
+		}
+
+		protected function postProcess() {
+				if ($this->isMethodCallableForClassName($this->model->getModelClassName(), 'postProcessTCA')) {
+						$funcName = (string)$this->model->getModelClassName() . '::postProcessTCA';
+						$this->tca = call_user_func($funcName, $this->tca);
+				}
+		}
+
+		protected function isMethodCallableForClassName($className, $method) {
+				try {
+						$reflection = new \ReflectionMethod((string)$className, $method);
+						return ($reflection->isPublic() && $reflection->isStatic());
+				} catch (\ReflectionException $e) {
+						return FALSE;
+				}
 		}
 
 		protected function buildColumns() {
 				foreach ($this->model->getOrderedFields() as $field) {
 						$typeName = (get_class($field) === 'Icti\\Sloth\\MetaModel\\Field')?'Field':'Relation';
-						$func = 'buildColumn' . $typeName . $field->getType();
+						$selectMethodName = 'getSelectValuesFor' . ucfirst($field->getName());
+						if ($this->isMethodCallableForClassName($this->model->getModelClassName(), $selectMethodName)) {
+								$func = 'buildColumnSelectValues';
+						} else {
+								$func = 'buildColumn' . $typeName . $field->getType();
+						}
 						$column = $this->$func($field);
 						$this->tca['columns'][(string)$field->getName()->toUnderscore()] = $column;
 				}
@@ -309,6 +330,23 @@ class Builder {
 				);
 				return $column;
 		}
+
+		protected function buildColumnSelectValues($field) {
+				$column = $this->buildBaseColumn($field);
+				$selectFuncName = (string)$this->model->getModelClassName() . '::getSelectValuesFor' . ucfirst($field->getName());
+
+				$column['l10n_mode'] = 'exclude';
+				$column['l10n_display'] = 'defaultAsReadonly';
+				$column['config'] = array(
+						'type' => 'select',
+						'size' => 1,
+						'maxitems' => 1,
+						'multiple' => 0,
+						'items' => call_user_func($selectFuncName)
+				);
+				return $column;
+		}
+
 
 
 		/**
