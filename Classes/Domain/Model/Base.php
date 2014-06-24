@@ -53,6 +53,13 @@ class Base extends \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject {
 				return parent::_getProperty($propertyName);
 		}
 
+		/**
+ 		 *
+ 		 */
+		public function getClassName() {
+				return get_class($this);
+		}
+
 }
 
 ?>
