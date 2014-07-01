@@ -68,6 +68,13 @@ class SlothCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandCo
 		protected function generateSQLSchema($models) {
 				$view = $this->objectManager->get('Icti\\Sloth\\View\\Php');
 				$fileData = $view->render($this->getTemplatePath('ext_tables.sql.php'), $models);
+
+				$appendFilename = $this->getGeneratedFilePath('ext_tables.append.sql');
+				if (file_exists($appendFilename)) {
+						$appendFileData = file_get_contents( $appendFilename );
+						$fileData .= "\n" . $appendFileData;
+				}
+
 				file_put_contents( $this->getGeneratedFilePath('ext_tables.sql'), $fileData);
 				$this->outputLine('Generated ext_tables.sql');
 		}
