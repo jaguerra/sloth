@@ -120,17 +120,31 @@ class Builder {
 
 				$column['l10n_mode'] = 'exclude';
 				$column['l10n_display'] = 'defaultAsReadonly';
-				$column['config'] = array(
-						'type' => 'select',
-						'foreign_table' => $foreignTable,
-						'foreign_table_where' => $this->buildRelationForeignTableWhere($field),
-						'size' => 1,
-						'maxitems' => 1,
-						'multiple' => 0,
-						'items' => array(
-								array('', 0),
-						),
-				);
+
+				if ($field->isAttributeSet('sloth\group')) {
+						$column['config'] = array(
+								'type' => 'group',
+								'internal_type' => 'db',
+								'allowed' => $foreignTable,
+								'foreign_table' => $foreignTable,
+								'size' => 1,
+								'autoSizeMax' => 1,
+								'maxitems' => 1,
+								'multiple' => 0,
+						);
+				} else {
+						$column['config'] = array(
+								'type' => 'select',
+								'foreign_table' => $foreignTable,
+								'foreign_table_where' => $this->buildRelationForeignTableWhere($field),
+								'size' => 1,
+								'maxitems' => 1,
+								'multiple' => 0,
+								'items' => array(
+										array('', 0),
+								),
+						);
+				}
 				return $column;
 		}
 
