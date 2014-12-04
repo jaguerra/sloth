@@ -8,6 +8,11 @@ CREATE TABLE <?php echo $this->getTableNameFromClassName($model->getModelClassNa
 	uid int(11) NOT NULL auto_increment,
 	pid int(11) DEFAULT '0' NOT NULL,
 
+<?php
+			if ($model->isSortable() || $model->isSortableOnRelations()) {
+					echo 'sorting int(11) DEFAULT \'0\' NOT NULL,' . LF;
+			}
+?>
 <?php 
 			foreach($model->getFields() as $field) { 
 					$fieldName = $this->camelCaseToUnderscore( $field->getName() );

@@ -13,6 +13,12 @@ class Builder {
 		protected $reflectionService;
 
 		/**
+ 		 * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
+ 		 * @inject
+ 		 **/
+		protected $objectManager;
+
+		/**
  	 	 * @return Model
  	 	 */
 		public function get($className) {
@@ -20,7 +26,7 @@ class Builder {
 				$classReflection = new \TYPO3\CMS\Extbase\Reflection\ClassReflection($className);
 				$tags = $classReflection->getTagsValues();
 
-				$model = new Model($className, $tags);
+				$model = $this->objectManager->get('Icti\\Sloth\\MetaModel\\Model', $className, $tags);
 
 				$properties = $this->reflectionService->getClassPropertyNames($className);
 				foreach ($properties as $property) {
@@ -35,7 +41,8 @@ class Builder {
 		}
 
 		public function processField(&$model, $name) {
-				$field = new Field(
+
+				$field = $this->objectManager->get('Icti\\Sloth\\MetaModel\\Field',
 						$model,
 						$name,
 						$this->getFieldType($model->getModelClassName(), $name),
@@ -45,7 +52,7 @@ class Builder {
 		}
 
 		public function processRelation(&$model, $name) {
-				$relation = new Relation(
+				$relation = $this->objectManager->get('Icti\\Sloth\\MetaModel\\Relation',
 						$model,
 						$name,
 						$this->getRelationType($model->getModelClassName(), $name),

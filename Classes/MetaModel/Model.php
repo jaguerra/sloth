@@ -30,7 +30,6 @@ class Model {
  		 */
 		protected $attributes;
 
-
 		public function __construct($modelClassName, $attributes = array()) {
 				$this->modelClassName = new Primitives\CamelCaseString($modelClassName);
 				$this->fields = array();
@@ -84,6 +83,29 @@ class Model {
 				}
 				return $this->orderedFields[0];
 		}
+
+		/**
+ 		 *
+ 		 */
+		public function isSortable() {
+				if ($this->isAttributeSet('sloth\sortable')) {
+						return TRUE;
+				} else {
+						return FALSE;
+				}
+		}
+
+		/**
+ 		 *
+ 		 */
+		public function isSortableOnRelations() {
+				if ($this->isAttributeSet('sloth\sortableOnRelations')) {
+						return TRUE;
+				} else {
+						return FALSE;
+				}
+		}
+
 
 		/**
  		 * @return Field

@@ -191,6 +191,12 @@ class Builder {
 								'localizationMode' => 'select'
 						)
 				);
+
+				if ($field->getSourceModel()->isSortable() || $field->getSourceModel()->isSortableOnRelations()) {
+						$column['config']['foreign_sortby'] = 'sorting';
+						$column['config']['appearance']['useSortable'] = TRUE;
+				}
+
 				return $column;
 		}
 
@@ -587,6 +593,10 @@ class Builder {
 						)
 
 				);
+
+				if ($this->model->isSortable()) {
+						$this->tca['ctrl']['sortby'] = 'sorting';
+				}
 
 		}
 }

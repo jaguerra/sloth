@@ -22,6 +22,14 @@ class Relation extends BaseProperty {
  		 */
 		protected $inverseOf;
 
+
+		/**
+ 		 * @var \Icti\Sloth\MetaModel\Factory
+ 		 * @inject
+ 		 */
+		protected $factory;
+
+
 		public function __construct(
 				Model &$model,
 				$name,
@@ -74,6 +82,14 @@ class Relation extends BaseProperty {
 		 */
 		public function getInverseOf() {
 				return $this->inverseOf;
+		}
+
+		/**
+ 		 *
+ 		 */
+		public function getSourceModel() {
+				$className = (string)$this->getSource();
+				return $this->factory->get($className);
 		}
 
 }
